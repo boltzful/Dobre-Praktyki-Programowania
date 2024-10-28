@@ -1,0 +1,80 @@
+from enum import Enum
+from dataclasses import dataclass
+
+# Enum TransactionStatus
+class TransactionStatus(Enum):
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+# Klasa danych TransactionResult
+@dataclass
+class TransactionResult:
+    success: bool
+    transactionId: str
+    message: str = ""
+
+# Wyjątki dla PaymentGateway
+class NetworkException(Exception):
+    pass
+
+class PaymentException(Exception):
+    pass
+
+class RefundException(Exception):
+    pass
+
+# Interfejs PaymentGateway
+class PaymentGateway:
+    def charge(self, userId: str, amount: float) -> TransactionResult:
+        raise NotImplementedError
+
+    def refund(self, transactionId: str) -> TransactionResult:
+        raise NotImplementedError
+
+    def getStatus(self, transactionId: str) -> TransactionStatus:
+        raise NotImplementedError
+
+# Klasa PaymentProcessor
+class PaymentProcessor:
+    def __init__(self, gateway: PaymentGateway):
+        self.gateway = gateway
+
+    def processPayment(self, userId: str, amount: float) -> TransactionResult:
+        # Walidacja danych wejściowych
+        if not userId or amount <= 0:
+            return TransactionResult(success=False, transactionId="", message="Invalid input parameters")
+
+        try:
+            result = self.gateway.charge(userId, amount)
+            # Logowanie wyniku transakcji, jeśli to konieczne
+            return result
+        except (NetworkException, PaymentException) as e:
+            # Logowanie szczegółów wyjątków
+            return TransactionResult(success=False, transactionId="", message=str(e))
+
+    def refundPayment(self, transactionId: str) -> TransactionResult:
+        # Walidacja identyfikatora transakcji
+        if not transactionId:
+            return TransactionResult(success=False, transactionId="", message="Invalid transaction ID")
+
+        try:
+            result = self.gateway.refund(transactionId)
+            # Logowanie wyniku zwrotu, jeśli to konieczne
+            return result
+        except (NetworkException, RefundException) as e:
+            # Logowanie szczegółów wyjątków
+            return TransactionResult(success=False, transactionId="", message=str(e))
+
+    def getPaymentStatus(self, transactionId: str) -> TransactionStatus:
+        # Walidacja identyfikatora transakcji
+        if not transactionId:
+            return TransactionStatus.FAILED
+
+        try:
+            status = self.gateway.getStatus(transactionId)
+            # Logowanie statusu, jeśli to konieczne
+            return status
+        except NetworkException:
+            # Logowanie szczegółów wyjątków sieciowych
+            return TransactionStatus.FAILED
