@@ -3,6 +3,21 @@ import logging
 # Set up basic logging configuration
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+#Logging Setup: Configures logging to record timestamps, log levels, and messages.
+
+#PaymentProcessor Class:
+
+#processPayment: Checks if the payment amount is valid. If valid, it attempts to process the payment through gateway.charge(), logging success or failure.
+#refundPayment: Attempts to refund a payment using gateway.refund(), logging the outcome.
+#getPaymentStatus: Retrieves the payment status via gateway.getStatus() and logs it. Logs an error if there’s a network issue.
+#Supporting Classes:
+
+#PaymentGateway: Defines methods for charging, refunding, and checking status.
+#TransactionResult: Holds transaction success, ID, and message.
+#TransactionStatus: Contains COMPLETED and FAILED statuses.
+#Exceptions: Define specific errors like NetworkException, PaymentException, and RefundException.
+#In short, PaymentProcessor handles payment, refund, and status operations while logging and managing exceptions.
+
 class PaymentProcessor:
     def __init__(self, gateway):
         self.gateway = gateway
