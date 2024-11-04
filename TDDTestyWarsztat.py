@@ -1,70 +1,72 @@
-import unittest
-from unittest.mock import Mock, create_autospec
-from payment_system import PaymentProcessor, PaymentGateway, TransactionResult, TransactionStatus, NetworkException, PaymentException, RefundException
+import logging
 
-class TestPaymentProcessor(unittest.TestCase):
-    def setUp(self):
-        self.mock_gateway = create_autospec(PaymentGateway)
-        self.processor = PaymentProcessor(self.mock_gateway)
+# Set up basic logging configuration
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    def test_process_payment_successful(self):
-        # Mockowanie poprawnego obciążenia
-        transaction_result = TransactionResult(success=True, transactionId="txn123")
-        self.mock_gateway.charge.return_value = transaction_result
+class PaymentProcessor:
+    def __init__(self, gateway):
+        self.gateway = gateway
+        logging.info("PaymentProcessor initialized with gateway.")
 
-        result = self.processor.processPayment("user123", 100.0)
-        self.assertTrue(result.success)
-        self.assertEqual(result.transactionId, "txn123")
-        self.mock_gateway.charge.assert_called_with("user123", 100.0)
+    def processPayment(self, user, amount):
+        logging.info(f"Processing payment for user: {user}, amount: {amount}")
+        if amount <= 0:
+            logging.warning("Invalid amount provided for payment.")
+            return TransactionResult(success=False, message="Invalid input parameters")
+        try:
+            result = self.gateway.charge(user, amount)
+            logging.info(f"Payment processed successfully for user: {user}, transaction ID: {result.transactionId}")
+            return result
+        except PaymentException as e:
+            logging.error(f"Payment failed for user: {user} with exception: {e}")
+            return TransactionResult(success=False, message=str(e))
 
-    def test_process_payment_failure_due_to_payment_exception(self):
-        # Mockowanie wyjątku PaymentException
-        self.mock_gateway.charge.side_effect = PaymentException("Payment failed")
+    def refundPayment(self, transaction_id):
+        logging.info(f"Processing refund for transaction ID: {transaction_id}")
+        try:
+            result = self.gateway.refund(transaction_id)
+            logging.info(f"Refund processed successfully for transaction ID: {transaction_id}")
+            return result
+        except RefundException as e:
+            logging.error(f"Refund failed for transaction ID: {transaction_id} with exception: {e}")
+            return TransactionResult(success=False, message=str(e))
 
-        result = self.processor.processPayment("user123", 100.0)
-        self.assertFalse(result.success)
-        self.assertEqual(result.message, "Payment failed")
-        self.mock_gateway.charge.assert_called_once()
+    def getPaymentStatus(self, transaction_id):
+        logging.info(f"Retrieving payment status for transaction ID: {transaction_id}")
+        try:
+            status = self.gateway.getStatus(transaction_id)
+            logging.info(f"Payment status for transaction ID: {transaction_id} is {status}")
+            return status
+        except NetworkException:
+            logging.error("Network exception occurred while retrieving payment status.")
+            return TransactionStatus.FAILED
 
-    def test_process_payment_invalid_amount(self):
-        # Test nieprawidłowej kwoty
-        result = self.processor.processPayment("user123", -50.0)
-        self.assertFalse(result.success)
-        self.assertEqual(result.message, "Invalid input parameters")
+# Define other classes and exceptions as in the previous example.
+class PaymentGateway:
+    def charge(self, user, amount):
+        pass
 
-    def test_refund_payment_successful(self):
-        # Mockowanie poprawnego zwrotu
-        transaction_result = TransactionResult(success=True, transactionId="txn123")
-        self.mock_gateway.refund.return_value = transaction_result
+    def refund(self, transaction_id):
+        pass
 
-        result = self.processor.refundPayment("txn123")
-        self.assertTrue(result.success)
-        self.mock_gateway.refund.assert_called_with("txn123")
+    def getStatus(self, transaction_id):
+        pass
 
-    def test_refund_payment_failure_due_to_refund_exception(self):
-        # Mockowanie wyjątku RefundException
-        self.mock_gateway.refund.side_effect = RefundException("Refund failed")
+class TransactionResult:
+    def __init__(self, success, transactionId=None, message=""):
+        self.success = success
+        self.transactionId = transactionId
+        self.message = message
 
-        result = self.processor.refundPayment("txn123")
-        self.assertFalse(result.success)
-        self.assertEqual(result.message, "Refund failed")
-        self.mock_gateway.refund.assert_called_once()
+class TransactionStatus:
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
 
-    def test_get_payment_status_completed(self):
-        # Mockowanie statusu ukończonego
-        self.mock_gateway.getStatus.return_value = TransactionStatus.COMPLETED
+class NetworkException(Exception):
+    pass
 
-        status = self.processor.getPaymentStatus("txn123")
-        self.assertEqual(status, TransactionStatus.COMPLETED)
-        self.mock_gateway.getStatus.assert_called_with("txn123")
+class PaymentException(Exception):
+    pass
 
-    def test_get_payment_status_network_exception(self):
-        # Mockowanie wyjątku NetworkException
-        self.mock_gateway.getStatus.side_effect = NetworkException("Network error")
-
-        status = self.processor.getPaymentStatus("txn123")
-        self.assertEqual(status, TransactionStatus.FAILED)
-        self.mock_gateway.getStatus.assert_called_once()
-
-if __name__ == "__main__":
-    unittest.main()
+class RefundException(Exception):
+    pass
