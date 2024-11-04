@@ -62,3 +62,6 @@ class TestPaymentProcessor(unittest.TestCase):
         status = self.processor.get_payment_status("123")
         
         self.assertEqual(status, TransactionStatus.FAILED)
+
+if __name__ == "__main__":
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)
