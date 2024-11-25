@@ -1,0 +1,72 @@
+1. Singleton
+python
+Skopiuj kod
+catalog = LibraryCatalog()
+catalog.add_book("001", "Python Programming", "John Doe")
+catalog.add_book("002", "Data Structures", "Jane Smith")
+Tworzony jest obiekt katalogu książek (LibraryCatalog), który działa jako Singleton, dzięki czemu instancja jest unikalna w całym programie.
+Dodawane są dwie książki do katalogu z ID, tytułem i autorem:
+"001": "Python Programming", autor: John Doe
+"002": "Data Structures", autor: Jane Smith.
+2. Adapter
+python
+Skopiuj kod
+json_data = '{"003": {"title": "Machine Learning", "author": "Andrew Ng"}}'
+csv_data = "004, Deep Learning, Ian Goodfellow\n005, Artificial Intelligence, Stuart Russell"
+catalog.books.update(JSONAdapter.parse(json_data))
+catalog.books.update(CSVAdapter.parse(csv_data))
+Wczytywane są dane książek w dwóch różnych formatach:
+JSON:
+Dane w formacie JSON reprezentują książkę:
+"003": "Machine Learning", autor: Andrew Ng.
+Są parsowane przez JSONAdapter i dodawane do katalogu.
+CSV:
+Dane w formacie CSV reprezentują dwie książki:
+"004": "Deep Learning", autor: Ian Goodfellow
+"005": "Artificial Intelligence", autor: Stuart Russell.
+Są parsowane przez CSVAdapter i również dodawane do katalogu.
+3. Factory
+python
+Skopiuj kod
+user1 = UserFactory.create_user("U001", "Alice", "Student")
+user2 = UserFactory.create_user("U002", "Bob", "Teacher")
+Użycie fabryki (UserFactory) do tworzenia użytkowników:
+Tworzony jest użytkownik "Alice" z rolą "Student" i ID "U001".
+Tworzony jest użytkownik "Bob" z rolą "Teacher" i ID "U002".
+Fabryka zapewnia, że użytkownik może mieć tylko dozwoloną rolę (student, nauczyciel, bibliotekarz), a w przypadku błędnej roli zgłasza wyjątek.
+4. Observer
+python
+Skopiuj kod
+notifier = LibraryNotifier()
+observer1 = UserObserver(user1.name)
+observer2 = UserObserver(user2.name)
+notifier.add_observer(observer1)
+notifier.add_observer(observer2)
+Mechanizm powiadamiania jest skonfigurowany:
+Tworzony jest obiekt powiadomień (LibraryNotifier).
+Dwóch obserwatorów (UserObserver) reprezentuje użytkowników:
+Obserwator dla "Alice".
+Obserwator dla "Bob".
+Obserwatorzy są dodawani do listy powiadomień w obiekcie notifier.
+5. Facade
+python
+Skopiuj kod
+library = LibraryInterface()
+library.add_book("006", "Introduction to Algorithms", "Thomas H. Cormen")
+library.borrow_book(user1, "001")
+library.return_book(user1, "001")
+Tworzony jest obiekt LibraryInterface, który stanowi fasadę dla zarządzania biblioteką:
+Dodano nową książkę do katalogu:
+"006": "Introduction to Algorithms", autor: Thomas H. Cormen.
+Użytkownik "Alice" wypożycza książkę z ID "001":
+Mechanizm fasady oznacza książkę jako wypożyczoną w katalogu.
+Powiadamiany jest obserwator użytkownika "Alice" o wypożyczeniu książki "Python Programming".
+Użytkownik "Alice" zwraca książkę z ID "001":
+Mechanizm fasady oznacza książkę jako dostępną w katalogu.
+Obserwator użytkownika "Alice" otrzymuje powiadomienie o zwróceniu książki "Python Programming".
+Podsumowanie działania całego bloku
+Singleton: Tworzy globalny katalog książek.
+Adaptery: Wczytują dane książek z formatów JSON i CSV, które są następnie dodawane do katalogu.
+Factory: Tworzy użytkowników z określonymi rolami.
+Observer: Konfiguruje system powiadomień dla użytkowników, którzy są informowani o działaniach (np. wypożyczenie, zwrot książek).
+Facade: Upraszcza interakcję z systemem zarządzania biblioteką, łącząc funkcjonalności katalogu, powiadomień i operacji na książkach.
