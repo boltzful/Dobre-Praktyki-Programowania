@@ -1,0 +1,101 @@
+Klasa LibraryCatalog
+Realizuje wzorzec Singleton, pozwalając na istnienie tylko jednej instancji katalogu książek w aplikacji.
+
+__new__:
+
+Zapewnia, że tylko jedna instancja klasy istnieje w pamięci.
+Gdy instancja nie istnieje, tworzy ją i inicjalizuje pusty słownik books.
+add_book:
+
+Dodaje książkę do katalogu, zapisując jej ID, tytuł, autora i status dostępności (available: True).
+get_book:
+
+Pobiera dane książki na podstawie jej ID.
+mark_as_borrowed:
+
+Oznacza książkę jako wypożyczoną (available: False), jeśli jest dostępna.
+mark_as_returned:
+
+Oznacza książkę jako dostępną (available: True).
+Klasa JSONAdapter
+Adapter pozwalający na wczytywanie danych książek z formatu JSON.
+
+parse:
+Parsuje dane w formacie JSON i zwraca je jako strukturę Python (słownik).
+Klasa CSVAdapter
+Adapter do wczytywania danych książek z formatu CSV.
+
+parse:
+Parsuje dane w formacie CSV, dzieląc każdą linię na book_id, title i author.
+Zwraca słownik z informacjami o książkach.
+Klasa User
+Reprezentuje użytkownika biblioteki.
+
+Konstruktor:
+
+Inicjalizuje użytkownika z ID, imieniem i rolą (np. student, nauczyciel, bibliotekarz).
+__str__:
+
+Zwraca czytelną reprezentację tekstową użytkownika w formacie "Imię (rola)".
+Klasa UserFactory
+Fabryka użytkowników, realizująca wzorzec Factory Method.
+
+create_user:
+Tworzy użytkownika tylko, jeśli rola to student, teacher lub librarian.
+W przypadku niewłaściwej roli rzuca wyjątek ValueError.
+Klasa LibraryObserver
+Interfejs dla obiektów, które mogą reagować na zdarzenia w systemie.
+
+update:
+Metoda do implementacji w klasach dziedziczących. Informuje obserwatora o zdarzeniach.
+Klasa UserObserver
+Implementacja obserwatora, powiadamiającego użytkownika o zdarzeniach w bibliotece.
+
+Konstruktor:
+
+Inicjalizuje obserwatora z imieniem użytkownika.
+update:
+
+Wyświetla powiadomienie z opisem zdarzenia.
+Klasa LibraryNotifier
+Reprezentuje mechanizm powiadamiania użytkowników (realizacja wzorca Observer).
+
+add_observer:
+
+Dodaje obserwatora do listy.
+remove_observer:
+
+Usuwa obserwatora z listy.
+notify:
+
+Powiadamia wszystkich obserwatorów o zdarzeniu, wywołując ich metodę update.
+Klasa LibraryInterface
+Interfejs dla zarządzania biblioteką, który integruje katalog książek i mechanizm powiadomień.
+
+Konstruktor:
+
+Tworzy instancję LibraryCatalog i LibraryNotifier.
+add_book:
+
+Dodaje książkę do katalogu.
+borrow_book:
+
+Wypożycza książkę:
+Jeśli książka jest dostępna, oznacza ją jako wypożyczoną i wysyła powiadomienie.
+Jeśli książka nie jest dostępna, wyświetla odpowiedni komunikat.
+return_book:
+
+Zwraca książkę:
+Oznacza książkę jako dostępną i wysyła powiadomienie.
+Podsumowanie działania
+Singleton (LibraryCatalog): Zapewnia istnienie jednego globalnego katalogu książek.
+
+Adaptery (JSONAdapter, CSVAdapter): Umożliwiają elastyczne wczytywanie danych z różnych formatów.
+
+Fabryka (UserFactory): Upraszcza tworzenie użytkowników.
+
+Wzorzec Obserwator (LibraryNotifier, UserObserver): Zapewnia powiadamianie użytkowników o zdarzeniach, takich jak wypożyczenie lub zwrot książki.
+
+Interfejs (LibraryInterface): Umożliwia wysokopoziomowe zarządzanie biblioteką.
+
+Dzięki zastosowanym wzorcom, kod jest modularny, łatwy do rozszerzenia i utrzymania.
